@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Pool {
+  id        String   @id @default(cuid())
+  title     String
+  code      String   @unique
+  createdAt DateTime @default(now())
+  ownerId       String?
+
+  Participants Participant[]
+  owner User? @relation(fields: [ownerId], references: [id]) //O sistema nao tera login. A estrategia sera quando
+  //o usuario fizer o bolao, ele sera DONO daquele bolao. Por isso que o ownerId esta marcado com uma string.
+
+}
+
+model Participant {
+  id     String @id @default(cuid())
+  userId String
+  poolId String
+
+  guesses Guess[]
+  User    User    @relation(fields: [userId], references: [id])
+  pool    Pool    @relation(fields: [poolId], references: [id])
+
+  @@unique([userId, poolId]) //so teremos um registro especifico de usuario ou bolao. 
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  googleId  String?   @unique
+  avatarUrl String? // a interrogacao indica que pode ser nulo.
+  createdAt DateTime @default(now())
+
+  participatingAt Participant[] //um usuario pode ser participante de varios boloes
+  ownPools        Pool[]
+}
+
+model Game {
+  id   String   @id @default(cuid())
+  data DateTime
+
+  firstTeamCountryCode  String
+  secondTeamCountryCode String
+  guesses               Guess[] // 1 palpite associado ao game, entao o game tera varios palpites.
+}
+
+model Guess {
+  id String @id @default(cuid())
+
+  firstTeamPoints  Int
+  secondTeamPoints Int
+  createdAt        DateTime @default(now())
+  gameId           String
+  participantId    String
+
+  participant Participant @relation(fields: [participantId], references: [id])
+  game        Game        @relation(fields: [gameId], references: [id])
+
+  @@unique([participantId, gameId])
+}
