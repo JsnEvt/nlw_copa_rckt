@@ -5,8 +5,8 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator erd{
-  provider ="prisma-erd-generator"
+generator erd {
+  provider = "prisma-erd-generator"
 }
 
 datasource db {
@@ -14,62 +14,62 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Pool{
-  id String @id @default(cuid())
-  title String
-  code String @unique
+model Pool {
+  id        String   @id @default(cuid())
+  title     String
+  code      String   @unique //codigo para acessar o bolao
   createdAt DateTime @default(now())
-  ownerId String?
+  ownerId   String? //tem algum proprietario? qual o id dele?
 
-  participants Participant[]
-  owner User? @relation(fields: [ownerId],references: [id])
+  participants Participant[] //boloes contem uma lista de participantes
+  owner        User?         @relation(fields: [ownerId], references: [id]) //para ser um proprietario, ele precisa ser um usuario.
 }
 
-model Participant{
-  id String @id @default(cuid())
+model Participant {
+  id     String @id @default(cuid())
   userId String
   poolId String
 
-  guesses Guess[]
-  user User @relation(fields: [userId],references: [id])
-  pool Pool @relation(fields: [poolId],references: [id])
+  guesses Guess[] //participantes tem uma lista de palpites
+  user    User    @relation(fields: [userId], references: [id])
+  pool    Pool    @relation(fields: [poolId], references: [id])
 
-  @@unique([userId,poolId])
+  @@unique([userId, poolId])
 }
 
-model User{
-  id String @id @default(cuid())
-  name String
-  email String @unique
-  googleId String? @unique
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  googleId  String?  @unique
   avatarUrl String?
   createdAt DateTime @default(now())
 
-  participatingAt Participant[]
-  ownPools Pool[]
+  participatingAt Participant[] //usuarios tem uma lista de onde esta participando
+  ownPools        Pool[] //usuarios tem uma lista de boloes em que sao proprietarios
 }
 
-model Game{
-  id String @id @default(cuid())
-  date DateTime
-  firstTeamCountryCode String
-  secondTeamCountryCode String
-  resultFirstTeamPoints Int  @default(-1)
-  resultSecondTeamPoints Int @default(-1)
+model Game {
+  id                     String   @id @default(cuid())
+  date                   DateTime
+  firstTeamCountryCode   String
+  secondTeamCountryCode  String
+  resultFirstTeamPoints  Int      @default(-1)
+  resultSecondTeamPoints Int      @default(-1)
 
-  guesses Guess[]
+  guesses Guess[] //dentro deste game, tenho uma lista de palpites.
 }
 
-model Guess{
-  id String @id @default(cuid())
-  firstTeamPoints Int
+model Guess {
+  id               String   @id @default(cuid())
+  firstTeamPoints  Int
   secondTeamPoints Int
-  createdAt DateTime @default(now())
-  gameId String
-  participantId String
-  
-   participant Participant @relation(fields: [participantId],references: [id])
-   game Game @relation(fields: [gameId],references: [id])
+  createdAt        DateTime @default(now())
+  gameId           String
+  participantId    String
 
-   @@unique([participantId,gameId])
+  participant Participant @relation(fields: [participantId], references: [id]) //um participante faz um palpite.
+  game        Game        @relation(fields: [gameId], references: [id]) //um palpite referencia um jogo
+
+  @@unique([participantId, gameId])
 }

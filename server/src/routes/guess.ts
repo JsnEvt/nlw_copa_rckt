@@ -5,80 +5,85 @@ import { authenticate } from "../plugins/authenticate";
 import { gameRoutes } from "./game";
 
 
-export async function guessRoutes(fastify:FastifyInstance){
-    fastify.get('/guesses/count',async ()=>{
-        const count= await prisma.guess.count();
-        return {count}
+export async function guessRoutes(fastify: FastifyInstance) {
+    fastify.get('/guesses/count', async (request, reply) => {
+        try {
+            const count = await prisma.guess.count();
+            return reply.send({ count })
+        } catch (error) {
+            fastify.log.error(error)
+            return reply.status(500).send({ error: 'Failed to fetch guess count in the server' })
+        }
     });
 
-    fastify.post('/guesses/:poolId/games/:gameId/guesses',{
-        onRequest:[authenticate],
-    },async (request,reply)=>{
+    fastify.post('/guesses/:poolId/games/:gameId/guesses', {
+        onRequest: [authenticate],
+    }, async (request, reply) => {
         const createGuessParams = z.object({
             poolId: z.string(),
             gameId: z.string(),
         })
 
-        const createGuessBody= z.object({
-            firstTeamPoints:z.number(),
-            secondTeamPoints:z.number(),
+        const createGuessBody = z.object({
+            firstTeamPoints: z.number(),
+            secondTeamPoints: z.number(),
         })
 
         const { poolId, gameId } = createGuessParams.parse(request.params);
         const { firstTeamPoints, secondTeamPoints } = createGuessBody.parse(request.body);
 
         const participant = await prisma.participant.findUnique({
-            where:{
-                userId_poolId:{
+            where: {
+                userId_poolId: {
                     poolId,
-                    userId:request.user.sub,
+                    userId: request.user.sub,
                 }
             }
         })
 
-        if(!participant){
+        if (!participant) {
             return reply.status(400).send({
-                message:'Você não pode dar um palpite nesse bolão'
+                message: 'Você não pode dar um palpite nesse bolão'
             })
         }
 
         const guess = await prisma.guess.findUnique({
-            where:{
-                participantId_gameId:{
-                    participantId:participant.id,
+            where: {
+                participantId_gameId: {
+                    participantId: participant.id,
                     gameId
                 }
             }
         })
 
-        if(guess){
+        if (guess) {
             return reply.status(400).send({
-                message:'Você já deu um palpite nesse jogo',
+                message: 'Você já deu um palpite nesse jogo',
             })
         }
 
-        const game= await prisma.game.findUnique({
-            where:{
-                id:gameId,
+        const game = await prisma.game.findUnique({
+            where: {
+                id: gameId,
             }
         })
 
-        if(!game){
+        if (!game) {
             return reply.status(400).send({
-                message:'Jogo não encontrado',
+                message: 'Jogo não encontrado',
             })
         }
 
-        if(new Date(game.date).getTime() < new Date().getTime()){
+        if (new Date(game.date).getTime() < new Date().getTime()) {
             return reply.status(400).send({
-                message:'Desculpe mas esse jogo já aconteceu',
+                message: 'Desculpe mas esse jogo já aconteceu',
             })
         }
 
         await prisma.guess.create({
-            data:{
+            data: {
                 gameId,
-                participantId:participant.id,
+                participantId: participant.id,
                 firstTeamPoints,
                 secondTeamPoints,
             }
@@ -88,47 +93,47 @@ export async function guessRoutes(fastify:FastifyInstance){
 
     })
 
-    fastify.get('/guesses/results/:id',async (request)=>{
+    fastify.get('/guesses/results/:id', async (request) => {
         const getPoolParams = z.object({
-            id:z.string(),
+            id: z.string(),
         })
 
-        const {id} = getPoolParams.parse(request.params)
+        const { id } = getPoolParams.parse(request.params)
 
         const guesses = await prisma.guess.findMany({
-            
-           
-            where:{
-               participant:{
-                poolId:id,
-               },      
+
+
+            where: {
+                participant: {
+                    poolId: id,
+                },
             },
-            include:{  
-                game:{
-                    select:{
-                        id:true,
-                        resultFirstTeamPoints:true,
-                        resultSecondTeamPoints:true,
-                        date:true,
+            include: {
+                game: {
+                    select: {
+                        id: true,
+                        resultFirstTeamPoints: true,
+                        resultSecondTeamPoints: true,
+                        date: true,
                     },
                 },
-                participant:{
-                    select:{
-                        user:{
-                            select:{
-                                avatarUrl:true,
-                                name:true
+                participant: {
+                    select: {
+                        user: {
+                            select: {
+                                avatarUrl: true,
+                                name: true
                             }
                         }
                     }
                 }
             },
-            
-            
-           
-           
+
+
+
+
         })
-        return {guesses}
+        return { guesses }
     })
 
 }
