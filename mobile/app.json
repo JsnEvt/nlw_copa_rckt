@@ -5,6 +5,7 @@
     "scheme": "nlwcopamobile",
     "version": "2.0.0",
     "orientation": "portrait",
+    "googleServicesFile": "./google-services.json",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -24,6 +25,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
+        "googleServicesFile": "./google-services.json",
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.inteligentec.nlwcopamobile",
