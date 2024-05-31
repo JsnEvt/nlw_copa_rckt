@@ -4,8 +4,8 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -29,6 +29,7 @@
     "expo-random": "~14.0.1",
     "expo-splash-screen": "^0.27.4",
     "expo-status-bar": "~1.12.1",
+    "expo-system-ui": "^3.0.4",
     "expo-updates": "^0.25.15",
     "expo-web-browser": "~13.0.3",
     "google-auth-library": "^9.10.0",
