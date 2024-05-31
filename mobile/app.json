@@ -1,11 +1,10 @@
 {
   "expo": {
-    "name": "nlwcopamobile",
-    "slug": "nlwcopamobile",
-    "scheme": "nlwcopamobile",
+    "name": "nlwcopamobile2",
+    "slug": "nlwcopamobile2",
+    "scheme": "nlwcopamobile2",
     "version": "2.0.0",
     "orientation": "portrait",
-    "googleServicesFile": "./google-services.json",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -25,11 +24,9 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "googleServicesFile": "./google-services.json",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.inteligentec.nlwcopamobile",
-      "version": 2
+      "package": "com.inteligentec.nlwcopamobile2"
     },
     "web": {
       "favicon": "./assets/favicon.png"

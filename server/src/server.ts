@@ -23,7 +23,7 @@ async function bootstrap() {
     })
 
     await fastify.register(jwt, {
-        secret: 'nlwcopamobile',
+        secret: 'nlwcopamobile2',
     })
 
     await fastify.register(poolRoutes);
